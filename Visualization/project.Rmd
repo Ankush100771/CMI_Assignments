@@ -1,0 +1,317 @@
+---
+title: "visualization project"
+author: "ANKUSH DEY , Roll No:- MDS202108"
+date: "28/11/2021"
+output:
+  word_document: default
+  html_document:
+    df_print: paged
+  pdf_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+Brief description of the project:-
+
+The dataset I am working on for this project is named "privatization of Space". this dataset contains 15 columns and 4324 rows. it contains the details of every space launch from 1957 to 2020, Included for each launch is the organization responsible for the launch. we will also see where and when the launch took place. the valriables in the datasets are company Name, Location, status rocket, status(paas/fail), and private or state run,etc... so from here we can conclude that how much the private companies are growing in this aspect. The question I want to answer from this datasets are
+
+1)How have we seen the private sector fair over the years?
+2)which organisations are most succesful?
+```{r}
+Global_Space_Launches <- read.csv("Global Space Launches.csv")
+names(Global_Space_Launches)
+```
+The names of the varibales in this data set are given above. so in this component I will try to analyse the types of the variables, e.g continuous, discrete, categorical, etc..
+
+ below I have created a data frame containing all the details of the 8 variable which I will be using in this project
+```{r}
+x=c('Company.Name','Location','Details','Status Rocket','status Mission','Country.of.Launch','Companys.Country.of.Origin','Private.or.State.Run','year','month')
+
+y=c('nominal (categorical)','nominal (categorical)','nominal (categorical)','binary (categorical)','ordinal(categorical)','nominal (categorical)','nominal (categorical)','binary (categorical)','numeric','numeric')
+
+z=c("The variable Comapny.Name is basically collection 55 unique companies participated in in this rocket launch",
+    "it stores all the lauch location","this variable contains the specification  of all the rockets","Showing if a rocket is currently in use","One of 4 categorical elements showing the the result of the launch"," we have 16 different countries from where the launches took place","the country that the organization is from","the organizations category think SpaceX for private and NASA for State","the year in which the launch took place","month of the launch")
+
+nature_of_variable= data.frame(cbind(variable_name=x,type=y,description=z))
+nature_of_variable
+
+```
+
+1)Company.Name
+```{r}
+unique(Global_Space_Launches$Company.Name)
+```
+The variable 'Comapny.Name' is basically collection 55 unique companies participated in in this rocket launch. since the names are in an undisputable order so it is a nominal variable.
+
+2)location
+```{r}
+head(unique(Global_Space_Launches$Location))
+```
+the variable "location" is also a nominal variable.
+
+3) detail
+```{r}
+head(unique(Global_Space_Launches$Detail))
+```
+this variable contains the specification  of all the rockets. so it is a nominal variable again.
+
+4)statusrocket
+```{r}
+unique(Global_Space_Launches$Status.Rocket)
+```
+it is a binary variable. since it has only two types "statusactive" and "statusRetired", this two are opposite to each other.
+
+5)Status.Mission
+```{r}
+unique(Global_Space_Launches$Status.Mission)
+```
+it is an ordinal variable. because it has more than two category following a particular order.
+
+6)Country.of.Launch
+```{r}
+unique(Global_Space_Launches$Country.of.Launch)
+```
+here we have 16 different countries from where the launches took place. so it is agian a nominal variable.
+
+7)Companys.Country.of.Origin
+```{r}
+unique(Global_Space_Launches$Companys.Country.of.Origin)
+```
+so the private compnies which took part in space lauch, belongs to an of this 17 countires. it is an nominal variable.
+
+8)Private.or.state.run
+```{r}
+unique(Global_Space_Launches$Private.or.State.Run)
+```
+here S stands for State and P stands for private. so it basically shows us the launches  are either from a  private organisation or  state(Nasa). it is an binary variable.
+
+
+```{r}
+company=unique(Global_Space_Launches$Company.Name)
+nol=c()
+noc=c()
+for(i in company){
+  noc=c(noc,i)
+  nol=c(nol,nrow(subset(Global_Space_Launches,Company.Name==i)))
+}
+launch= data.frame(cbind(Company_name=noc,No_of_lauch=nol))
+launch
+```
+
+this are the lists of the companies who has maximum number of launches and minimum number of launches respexctively
+```{r}
+subset(launch,No_of_lauch==max(nol))
+subset(launch,No_of_lauch==min(nol))
+```
+
+I am intending to show a barplot of the company name and the number of launches,since it is difficult to show all the 55 companies in same plot, so i am taking a sample of size 25 to do it.
+```{r}
+sam=sample(company,size=25)
+nol1=c()
+for(i in sam){
+  nol1=c(nol1,nrow(subset(Global_Space_Launches,Company.Name==i)))
+}
+barplot(nol1,names.arg = sam, col=c('violet','light blue','blue','green','yellow','orange','red'),las=2)
+```
+
+```{r}
+active=nrow(subset(Global_Space_Launches,Status.Rocket=='StatusActive'))
+retired=nrow(subset(Global_Space_Launches,Status.Rocket=="StatusRetired"))
+
+pie(x=c(active,retired),labels = c('StatusActive','StatusRetired'),col=c('red','green'))
+
+```
+so majority of the rockets are now in retired condition.
+
+below is the table for number of active and retired rocket from each company.
+```{r}
+library(dplyr)
+active_number=c()
+retired_number=c()
+for(i in company){
+  active_number=c(active_number,nrow(filter(Global_Space_Launches,Company.Name==i, Status.Rocket=='StatusActive')))
+  retired_number=c(retired_number,nrow(filter(Global_Space_Launches,Company.Name==i,Status.Rocket=='StatusRetired')))
+}
+rocket_status<- data.frame(cbind(Company_Name=company,status_active=active_number,status_retired=retired_number))
+rocket_status
+```
+since it is difficult to show the barplots for active and retired rocket for eaxh company, so i have taken a sample of size 15 to draw the plots.
+
+
+```{r}
+library(dplyr)
+Sample_rocket_status=sample(company,size=15)
+sample_active_number=c()
+ sample_retired_number=c()
+for( i in Sample_rocket_status){
+  sample_active_number=c(sample_active_number,nrow(filter(Global_Space_Launches,Company.Name==i,Status.Rocket=='StatusActive')))
+  sample_retired_number=c(sample_retired_number,nrow(filter(Global_Space_Launches,Company.Name==i,Status.Rocket=='StatusRetired')))
+}
+barplot(sample_active_number,names.arg = Sample_rocket_status,las=2,col =c('red','green','blue'),main = 'barplot for active rocket')
+barplot(sample_retired_number,names.arg = Sample_rocket_status,las=2,col =c('red','green','blue'),main = 'barplot for retired rocket')
+
+```
+
+```{r}
+library(ggplot2)
+o1=Global_Space_Launches[,c(1,4)]
+ggplot(head(o1,900),aes(x=Company.Name,y=Status.Rocket,fill=Status.Rocket))+geom_bar(stat = 'identity')+theme(axis.text.x = element_text(angle = 90,size = 6))+ggtitle("active and retire rocket of the companies")
+```
+
+```{r}
+subset(rocket_status,status_active==max(active_number))
+subset(rocket_status,status_active==min(active_number))
+subset(rocket_status,status_retired==max(retired_number))
+subset(rocket_status,status_retired==min(retired_number))
+```
+
+so company 'CASIC' possess max number of active rocket, and 'RVSN USSR' possess max number of retire rocket, whereas several companies has all active and all retire rocket.
+```{r}
+library(dplyr)
+success=c()
+faliure=c()
+prelaunch_faliure=c()
+partial_faliure=c()
+for(i in company){
+  success=c(success,nrow(filter(Global_Space_Launches,Company.Name==i,Status.Mission=="Success")))
+  faliure=c(faliure,nrow(filter(Global_Space_Launches,Company.Name==i,Status.Mission=="Failure")))
+  prelaunch_faliure=c(prelaunch_faliure,nrow(filter(Global_Space_Launches,Company.Name==i,Status.Mission=="Prelaunch Failure")))
+  partial_faliure=c(partial_faliure,nrow(filter(Global_Space_Launches,Company.Name==i,Status.Mission=="Partial Failure")))
+}
+mission_status<-data.frame(cbind(company,No_success=success,No_faliure=faliure,No_prelaunch_faliure=prelaunch_faliure,No_partial_faliure=partial_faliure))
+mission_status
+```
+below is the barplot for mission_status, I have shown the barplot for 1st 500 entries, otherwise it's becoming too congested.  
+
+```{r}
+library(ggplot2)
+mission_data=Global_Space_Launches[,c(1,6)]
+ggplot(head(mission_data,500),aes(x=Company.Name,y=Status.Mission,fill=Status.Mission))+geom_bar(stat = 'identity')+theme(axis.text.x = element_text(angle = 90,size=6))+ggtitle("       status of the launches")
+```
+```{r}
+pie(x=c(sum(success), sum(faliure), sum(prelaunch_faliure),sum(partial_faliure)),labels=c('success','faliure','prelaunch_faliure','partial_faliure'),col=c('red','blue','green','yellow'),radius=1 )
+```
+```{r}
+subset(mission_status,No_success==max(as.integer(mission_status$No_success)))
+```
+So RVSN USSR has mximum number of success  in launching
+```{r}
+subset(mission_status,No_faliure==max(as.integer(mission_status$No_faliure)))
+```
+this comapny also holds a record in maximum number of unsuccessful launches.
+
+```{r}
+country=unique(Global_Space_Launches$Country.of.Launch)
+total_launch=c()
+for(i in country){
+  total_launch=c(total_launch,nrow(subset(Global_Space_Launches,Country.of.Launch==i)))
+}
+country_data=data.frame(cbind(country_name=country,no_of_launch=total_launch))
+country_data
+```
+
+
+```{r}
+library(ggplot2)
+library(dplyr)
+ggplot(arrange(country_data,as.integer(no_of_launch)),aes(x=country_name,y=sort(as.integer(no_of_launch))))+geom_bar(stat='identity',fill='blue',col="red")+theme(axis.text.x = element_text(angle = 90))+ylim(0,1400)+labs(x="country_name",y="no_of_launches")
+
+```
+most of the launches happend in usa and russia, of all the lauches aprroximately 31.24% occured in usa and 32.33% occured in Russia.kazakistan is in 3rd place in this mission.
+
+
+below is the table of all the comanies and its coresponding companies 
+```{r}
+company_data=unique(Global_Space_Launches[c(1,8)])
+
+company_data
+
+```
+barplot for countries and the companies which the company belongs to
+```{r}
+library(ggplot2)
+val1=unique(company_data$Companys.Country.of.Origin)
+val=c()
+for(i in val1){
+  val=c(val,nrow(subset(company_data,Companys.Country.of.Origin==i)))
+}
+o=data.frame(cbind(country_name=val1,No_of_companies=val))
+ggplot(arrange(o,as.integer(No_of_companies)),aes(x=country_name,y=sort(as.integer(No_of_companies))))+geom_bar(stat='identity',fill='orange',col='blue')+theme(axis.text.x = element_text(angle = 90))+labs(x='country_name',y='No_of_companies')
+```
+```{r}
+ nrow(subset(company_data,Companys.Country.of.Origin=="USA"))
+```
+
+pie chart for state and private companies participated in rocket launch.
+```{r}
+pri=nrow(subset(Global_Space_Launches,Private.or.State.Run=='P'))
+sta=nrow(subset(Global_Space_Launches,Private.or.State.Run=='S'))
+pie(x=c(pri,sta),labels=c('private','state'),col=c('yellow','blue'))
+```
+so it is clear from the pie chart that majority of the launches are state project.
+
+bivariate plot for success, falure of launch over government and private project 
+```{r}
+check1=Global_Space_Launches[,c(6,9)]
+ggplot(check1,aes(x=Status.Mission,y=Private.or.State.Run,fill=Private.or.State.Run))+geom_bar(stat='identity')
+```
+it is clear from the plot that the success rate is higher for state category.
+
+barplot for number of launches in a particular year.
+```{r}
+library(ggplot2)
+year=unique(Global_Space_Launches$Year)
+no_of_launch_year=c()
+for(i in year){
+  no_of_launch_year=c(no_of_launch_year,nrow(subset(Global_Space_Launches,Year==i)))
+  
+}
+year_data=data.frame(cbind(YEAR=year,No_launch=no_of_launch_year))
+ggplot(year_data,aes(x=YEAR,y=No_launch))+geom_bar(stat = 'identity',fill='red',col='black')
+```
+```{r}
+library(ggplot2)
+library(dplyr)
+demo=Global_Space_Launches[,c(9,11)]
+ggplot(demo,aes(x=as.character(Year),y= Private.or.State.Run,fill=Private.or.State.Run))+geom_bar(stat='identity')+theme(axis.text.x = element_text(angle=90,size = 6))
+```
+
+```{r}
+subset(year_data,No_launch==max(year_data$No_launch))
+
+```
+so in 1971 maximum number of launches took place.
+
+
+bivariate plots of number of success and number of faliure over total number of launch for each comapny
+```{r}
+library(ggplot2)
+check=data.frame(cbind(company_name=company,no_of_launch=nol,no_of_success=success,no_of_faliure=faliure))
+qplot(nol,success,data=check,geom = c("point", "smooth"),xlim = c(0,1800),ylim = c(0,1800))
+qplot(nol,faliure,data=check,geom = c("point", "smooth"))
+
+```
+bivariate plot for number of launches of every year from 1957 to 2020 over each months
+```{r}
+library(ggplot2)
+qplot(Year,data=Global_Space_Launches,facets = Month ~.,geom="histogram",stat="count",binwidth = 0.5)
+
+```
+
+CONCLUSION:- From all the univarite and multivariate plots and charts i have reache to  certain number of comclusion. 
+
+1) The Russian Company RVVN USSR has launched maximum number of rockets. 
+2) Of all the rockets launched most of them are now currently in "retired" condition.
+3) Company 'CASIC' possess max number of active rocket, and  for 'RVVN USSR' all the rockets are currently retired.
+4) Majority of the launches are successful.RVVN USSR holds a record of maximum number of success and failure both.
+5) Majority of those launches took place in USA, USSR, and Kazakhstan.
+6) The private companies are mainly from USA. It has a total of 20 private and state companies.
+7) Among all the launches more than 50% are from state category.
+8) the Companies which are from state category are more successful in launching than the private companies
+9) the number of launches per year doesn't follow a fixed pattern. so we can't predict from this data that the no of launch will gradually increase over the year in future. however the number of private company is increasing over the year. maximum number of launch took place in 1971.
+10) The total Number of launch and total number success depends on each other almost linearly.but the same can't be predicted in case of failure.
+
+ As the project is named privatization of space, my final conclusion is:- since not majority of the launches are yet from private companies. so the space has not become privatized yet, but maybe in near future private companies will be in lead role for rocket launching.
+
