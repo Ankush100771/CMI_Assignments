@@ -32,7 +32,9 @@ takes much higher time to solve the dataset. The process to generate
 the optimal value of the number of clusters was the same as that of the
 NIPS dataset. The best value for k was 3 according to the elbow
 method. </li>
-###results
+
+### Results
+
 <table style="width:100%">
   <tr>
     <th>       </th>
